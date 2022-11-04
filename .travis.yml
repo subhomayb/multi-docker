@@ -4,4 +4,17 @@ services:
 before_install: 
  - docker build -t subhomay/react-test -f ./client/Dockerfile.dev ./client
 script: 
- - docker run -e CI=true subhomay/docker-react npm run test
+ - docker run -e CI=true subhomay/react-test npm run test
+after_success: 
+ - docker build -t subhomay/multi-client ./client
+ - docker build -t subhomay/multi-nginx ./nginx
+ - docker build -t subhomay/multi-server ./server
+ - docker build -t subhomay/multi-worker ./worker
+ #login to docker cli
+ - echo "$docker_pwd" | docker login -u "$docker_id" --password-stdin
+ #pushing images to docker hub
+ - docker push subhomay/multi-client
+ - docker push subhomay/multi-nginx
+ - docker push subhomay/multi-server
+ - docker push subhomay/multi-worker
+  
